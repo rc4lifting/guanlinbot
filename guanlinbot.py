@@ -2,6 +2,8 @@ import logging
 import os
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import random
+from asyncio import sleep
 
 # Enable logging
 logging.basicConfig(
@@ -35,6 +37,53 @@ async def respond_to_intro(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         await update.message.reply_text(response)
 
 
+async def madness(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # Determine if the /madness command is a reply to another message
+    reply_to_message_id = None
+    if update.message.reply_to_message:
+        reply_to_message_id = update.message.reply_to_message.message_id
+
+    # Start message
+    # Ensure the message is replying to the original message that /madness was a reply to
+    message = await update.message.reply_text(
+        "Consulting madness charts... 🧐",
+        reply_to_message_id=reply_to_message_id
+    )
+
+    # Simulate some processing time and update the message to show a loading animation
+    for i in range(3):
+        await sleep(0.5)
+        animation_frames = ["🌑🌒🌓🌔🌕", "🌕🌖🌗🌘🌑", "🌑🌒🌓🌔🌕"]
+        await context.bot.edit_message_text(
+            chat_id=update.effective_chat.id,
+            message_id=message.message_id,
+            text=f"Consulting madness charts... 🧐 {animation_frames[i]}"
+        )
+
+    # Midpoint update
+    await sleep(0.5)  # Ensuring the sleep to simulate more processing time
+    await context.bot.edit_message_text(
+        chat_id=update.effective_chat.id,
+        message_id=message.message_id,
+        text="[=====>.......] Double-checking the madness... 🕵️"
+    )
+
+    # Simulate more processing time
+    await sleep(0.5)
+
+    final_messages = [
+        "VERIFIED: 🚨 Bro did a madness! 🚨",
+        "VERIFIED: 😔 Bro did not do a madness..."
+    ]
+    # Randomly choose one of the final messages
+    final_text = random.choice(final_messages)
+    await context.bot.edit_message_text(
+        chat_id=update.effective_chat.id,
+        message_id=message.message_id,
+        text=final_text
+    )
+
+
 def main() -> None:
     """Start the bot."""
     # check if GUANLIN_BOT_TOKEN defined in environment variables, if not, exit
@@ -51,6 +100,7 @@ def main() -> None:
     application.add_handler(MessageHandler(
         filters.TEXT & ~filters.COMMAND, respond_to_intro))
 
+    application.add_handler(CommandHandler("madness", madness))
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
