@@ -31,10 +31,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def respond_to_intro(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handler for messages starting with "i'm", "I'm", "im", or "Im" followed by any text."""
+    print("test")
     is_intro, text = filter_intro_message(update.message)
     if is_intro:
         response = f"hi {text}, i'm guan lin"
         await update.message.reply_text(response)
+
+
+async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    message_text = update.message.text.lower()
+
+    # Check if message is an introduction
+    is_intro, intro_text = filter_intro_message(update.message)
+    if is_intro:
+        response = f"hi {intro_text}, i'm guan lin"
+        await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
+        return  # Stop further processing
+
+    # Check if message should trigger a wtf response
+    is_wtf = filter_wtf_message(update.message)
+    if is_wtf:
+        await update.message.reply_text("lmao call police ah", reply_to_message_id=update.message.message_id)
+
+    # every 100 messages, send nananananananana
+    if random.randint(1, 100) == 1:
+        await update.message.reply_text("nananananananana")
 
 
 async def madness(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -84,6 +105,21 @@ async def madness(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+def filter_wtf_message(message):
+    """Filter function to check if the message contains 'wtf' and is longer than 5 words."""
+    message_text = message.text.lower()
+    if "wtf" in message_text and len(message_text.split()) >= 5:
+        return True
+    return False
+
+
+async def respond_to_wtf(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handler for messages containing 'wtf' and longer than 5 words."""
+    is_wtf = filter_wtf_message(update.message)
+    if is_wtf:
+        await update.message.reply_text("lmao call police ah")
+
+
 def main() -> None:
     """Start the bot."""
     # check if GUANLIN_BOT_TOKEN defined in environment variables, if not, exit
@@ -95,12 +131,17 @@ def main() -> None:
     application = Application.builder().token(
         os.environ["GUANLIN_BOT_TOKEN"]).build()
 
+    # application.add_handler(MessageHandler(
+    #     filters.TEXT & ~filters.COMMAND, respond_to_wtf))
     # Register the command and message handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(
-        filters.TEXT & ~filters.COMMAND, respond_to_intro))
+        filters.TEXT & ~filters.COMMAND, respond_to_message))
+    # application.add_handler(MessageHandler(
+    #     filters.TEXT & ~filters.COMMAND, respond_to_intro))
 
     application.add_handler(CommandHandler("madness", madness))
+
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
