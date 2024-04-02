@@ -66,7 +66,7 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
             response = random.choice(messages)
             await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
         # return
-    if update.message.from_user.id == 547045575:
+    if update.message.from_user.id == 547045575 and random.randint(1, 20) == 1:
         print("carol msg")
         if random.randint(1,20) == 1:
             messages = ["stfu u gremlin"]
