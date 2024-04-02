@@ -59,8 +59,6 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
         print("lynn msg")
         if "fast" in message_text:
             await update.message.reply_text("speaking of fast, what about your backpedalling speed (submission by carol)")
-        elif "tank" in message_text:
-            await update.message.reply_text("speaking of tanks, have you considered going down to tank? (submission by carol)")
         elif random.randint(1, 20) == 1:
             messages = ["hahahahah good bants lynn, watch out for your ankles",
                         "good point lynn what about your valorant kda"]
@@ -69,6 +67,9 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
         # return
 
+    if "tank" in message_text:
+        await update.message.reply_text("speaking of tanks, lynn have you considered going down to tank? (submission by carol)")
+        return
     # Check if message is an introduction
     is_intro, intro_text = filter_intro_message(update.message)
     if is_intro:
