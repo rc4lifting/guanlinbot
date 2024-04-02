@@ -14,10 +14,21 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
+def is_special_message(message_text):
+    # pattern to match the message starting with various forms of "i'm " including different apostrophes
+    pattern = re.compile(r"^(i['`’\"]m )(.+)", re.IGNORECASE)
+
+    match = pattern.match(message_text)
+    if match:
+        # return True and the message without the "i'm" part
+        return True, match.group(2)
+    return False, None
+
+
 def filter_intro_message(message):
     """Filter function to check if the message starts with "i'm", "I'm", "im", or "Im" followed by any text."""
     message_text = message.text.lower()
-    if message_text.startswith("i'm ") or message_text.startswith("im "):
+    if message_text.startswith("i'm ") or message_text.startswith("im ") or message_text.startswith("i’m ") or message_text.startswith("i`m ") or message_text.startswith("i\"m ") or message_text.startswith("i‘m "):
         return True, message_text.split(" ", 1)[1]
     return False, None
 
@@ -40,10 +51,31 @@ async def respond_to_intro(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     message_text = update.message.text.lower()
+    # if message from lynn
+    # print userid and msg
+    print(update.message.from_user.id, message_text)
+    if update.message.from_user.id == 371742259:
+        # every 20 messages, bully lynn
+        print("lynn msg")
+        if "fast" in message_text:
+            await update.message.reply_text("speaking of fast, what about your backpedalling speed (submission by carol)")
+        elif "tank" in message_text:
+            await update.message.reply_text("speaking of tanks, have you considered going down to tank? (submission by carol)")
+        elif random.randint(1, 20) == 1:
+            messages = ["hahahahah good bants lynn, watch out for your ankles",
+                        "good point lynn what about your valorant kda"]
+            # pick one and reply to her
+            response = random.choice(messages)
+            await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
+        # return
 
     # Check if message is an introduction
     is_intro, intro_text = filter_intro_message(update.message)
     if is_intro:
+        # chekc if intro_text >50 letters, if so, ignore
+        if len(intro_text) > 250:
+            await update.message.reply_text("i aint reading all that bruh")
+            return
         response = f"hi {intro_text}, i'm guan lin"
         await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
         return  # Stop further processing
@@ -54,7 +86,7 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("lmao call police ah", reply_to_message_id=update.message.message_id)
 
     # every 100 messages, send nananananananana
-    if random.randint(1, 100) == 1:
+    if random.randint(1, 500) == 1:
         await update.message.reply_text("nananananananana")
 
 
@@ -105,10 +137,15 @@ async def madness(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
+async def bully_lynn(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # lynns id is 371742259
+    lynn_id = 371742259
+
+
 def filter_wtf_message(message):
     """Filter function to check if the message contains 'wtf' and is longer than 5 words."""
     message_text = message.text.lower()
-    if "wtf" in message_text and len(message_text.split()) >= 5:
+    if ("wtf" in message_text or "fuck" in message_text or "fk" in message_text) and len(message_text.split()) >= 5:
         return True
     return False
 
