@@ -1,9 +1,14 @@
 import logging
 import os
+import random
+import re
+import json
+import base64
+from io import BytesIO
+from asyncio import sleep
+from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-import random
-from asyncio import sleep
 
 # Enable logging
 logging.basicConfig(
@@ -162,6 +167,36 @@ async def respond_to_wtf(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if is_wtf:
         await update.message.reply_text("lmao call police ah")
 
+async def its_wednesday_my_dudes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a wednesday my dude picture if it is wednesday"""
+    images = {}  # Initialize images to an empty dictionary
+    try:
+        with open("wednesdayImgUrl.json", "r") as file:
+            images = json.load(file)
+    except Exception:
+        print("woops no images")
+
+    picture_data = ""
+    # Randomly send "dead inside" image every 10 uses
+    if random.randint(1, 10) == 1:
+        picture_data = images.get("dead_inside", "")
+
+    if picture_data == "":
+        now = datetime.now()
+        if now.date().weekday() == 2:
+            picture_data = images.get("is_wednesday", "My dude is on vacation right now 🐸. Stop disturbing him")
+        else:
+            picture_data = images.get("not_wednesday", "It's not Wednesday, my dude.")
+
+    if picture_data.startswith("data:image/jpeg;base64,"):
+        base64_data = picture_data.replace("data:image/jpeg;base64,", "")
+        image_data = base64.b64decode(base64_data)
+        image_io = BytesIO(image_data)
+        image_io.name = "wednesday.jpeg"
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_io)
+    else:
+        await update.message.reply_text(picture_data)
+        
 
 def main() -> None:
     """Start the bot."""
@@ -184,6 +219,7 @@ def main() -> None:
     #     filters.TEXT & ~filters.COMMAND, respond_to_intro))
 
     application.add_handler(CommandHandler("madness", madness))
+    application.add_handler(CommandHandler("wednesday", its_wednesday_my_dudes))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
