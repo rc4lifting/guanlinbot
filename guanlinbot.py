@@ -57,9 +57,7 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if update.message.from_user.id == 371742259:
         # every 20 messages, bully lynn
         print("lynn msg")
-        if "fast" in message_text:
-            await update.message.reply_text("speaking of fast, what about your backpedalling speed (submission by carol)")
-        elif random.randint(1, 20) == 1:
+        if random.randint(1, 20) == 1:
             messages = ["hahahahah good bants lynn, watch out for your ankles",
                         "good point lynn what about your valorant kda"]
             # pick one and reply to her
@@ -68,10 +66,19 @@ async def respond_to_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
         # return
     if update.message.from_user.id == 547045575 and random.randint(1, 20) == 1:
         print("carol msg")
-        messages = ["stfu u gremlin"]
-        response = random.choice(messages)
-        await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
+        if random.randint(1,20) == 1:
+            messages = ["stfu u gremlin"]
+            response = random.choice(messages)
+            await update.message.reply_text(response,reply_to_message_id=update.message.message_id)
+    if update.message.from_user.id == 672714020:
+        print("william message")
+        if random.randint(1,20) == 1:
+            messages = ["ORD loh", "2359 bookin", "send parade state!"]
+            response = random.choice(messages)
+            await update.message.reply_text(response, reply_to_message_id=update.message.message_id)
 
+    if "fast" in message_text:
+            await update.message.reply_text("speaking of fast, what about your backpedalling speed (submission by carol)")    
     if "tank" in message_text:
         await update.message.reply_text("speaking of tanks, lynn have you considered going down to tank? (submission by carol)")
         return
